@@ -40,6 +40,7 @@ taskRouter.post("/create", authMiddleware, async (req, res) => {
       task
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: "Internal Server Error",
     });
@@ -55,7 +56,9 @@ taskRouter.get("/all", authMiddleware, async (req, res) => {
       user: userId,
     });
 
-    return res.status(200).json(tasks);
+    return res.status(200).json({
+      tasks
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",

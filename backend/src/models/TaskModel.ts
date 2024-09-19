@@ -30,7 +30,7 @@ const TaskSchema = new mongoose.Schema({
     enum: Object.values(Priority), 
   },
   dueDate: {
-    type: Date,
+    type: String,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

@@ -22,5 +22,5 @@ export const taskSchema = z.object({
     .min(5, "Description must be at least of 5 characters"),
   status: z.string(),
   priority: z.string(),
-  dueDate: z.date().optional(),
+  dueDate: z.string().optional(),
 });
