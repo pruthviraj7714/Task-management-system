@@ -9,6 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    return res.json({
+      message: "healthy server",
+    });
+});
+
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/task', taskRouter);
 
