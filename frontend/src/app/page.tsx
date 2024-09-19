@@ -7,9 +7,8 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center border-b border-black/15 shadow-xl">
-        <Link className="flex items-center justify-center" href="#">
+        <Link className="flex items-center justify-center" href="/">
           <ListTodo className="h-6 w-6" />
-          <span className="sr-only">Acme Inc</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link
@@ -52,7 +51,9 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="space-x-4">
+                <Link href={'/auth'}>
                 <Button>Get Started</Button>
+                </Link>
                 <Button variant="outline">Learn More</Button>
               </div>
             </div>
