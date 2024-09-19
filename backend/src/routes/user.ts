@@ -6,12 +6,6 @@ import { signInSchema, signupSchema } from "../schemas/schema";
 
 export const userRouter = Router();
 
-userRouter.get("/", (req, res) => {
-    return res.json({
-      message: "healthy server",
-    });
-  });
-
 userRouter.post("/signup", async (req, res) => {
   const parsedBody = signupSchema.safeParse(req.body);
 

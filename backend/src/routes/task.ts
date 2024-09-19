@@ -5,7 +5,7 @@ import { taskSchema } from "../schemas/schema";
 
 export const taskRouter = Router();
 
-taskRouter.post("/add", authMiddleware, async (req, res) => {
+taskRouter.post("/create", authMiddleware, async (req, res) => {
   //@ts-ignore
   const userId = req.id;
 
@@ -37,6 +37,7 @@ taskRouter.post("/add", authMiddleware, async (req, res) => {
 
     return res.status(201).json({
       message: "Task Successfully Created!",
+      task
     });
   } catch (error) {
     return res.status(500).json({
@@ -61,3 +62,34 @@ taskRouter.get("/all", authMiddleware, async (req, res) => {
     });
   }
 });
+
+taskRouter.delete('/delete', authMiddleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.isPaused
+
+  const taskId = req.query.id;
+
+  if(!taskId) {
+    return res.status(411).json({
+      message : "Task Id is missing!"
+    })
+  }
+
+  try {
+    await Task.deleteOne({
+      _id : taskId
+    })
+
+    return res.status(200).json({
+      message : "Task Successfully deleted!"
+    })
+    
+  } catch (error) {
+    return res.status(500).json({
+      message : "Internal Server Error"
+    })
+  }
+})
+
+
+
