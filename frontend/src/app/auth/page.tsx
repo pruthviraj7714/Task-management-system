@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -12,26 +11,83 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListTodo } from "lucide-react";
 import Link from "next/link";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import axios from "axios";
+import { BACKEND_URL } from "@/config/config";
+import { useRouter } from "next/navigation";
+
+const signupSchema = z.object({
+  username: z.string().min(3, {
+    message: "Username must be at least 2 characters.",
+  }),
+  email: z.string().email({ message: "Email should be valid." }),
+  password: z
+    .string()
+    .min(6, { message: "password must be at least of 6 characters" }),
+});
+
+const signinSchema = z.object({
+  email: z.string().email({ message: "Email should be valid." }),
+  password: z
+    .string()
+    .min(6, { message: "password must be at least of 6 characters" }),
+});
 
 export default function AuthPage() {
-  const [signUpError, setSignUpError] = useState<string | null>(null);
-  const [signInError, setSignInError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("signup");
+  const router = useRouter();
+  
+  const signupForm = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSignUp = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Add your sign-up logic here
-    console.log("Sign up submitted");
-    setSignUpError(null);
+  const signinForm = useForm<z.infer<typeof signinSchema>>({
+    resolver: zodResolver(signinSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleSignUp = async (values: z.infer<typeof signupSchema>) => {
+    try {
+        const res = await axios.post(`${BACKEND_URL}/user/signup`, values);
+        toast.success(res.data.message, {description : "Now sign in with your credentials"});
+        setActiveTab("signin");
+        signupForm.reset();
+    } catch (error : any) {
+        toast.error(error?.response?.data.message);
+    }
   };
 
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Add your sign-in logic here
-    console.log("Sign in submitted");
-    setSignInError(null);
+  const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
+    try {
+        const res = await axios.post(`${BACKEND_URL}/user/signin`, values);
+        toast.success(res.data.message);
+        localStorage.setItem("token", res.data.token);
+        router.push('/home')
+    } catch (error : any) {
+        toast.error(error.response.data.message)
+    }
   };
 
   return (
@@ -39,7 +95,6 @@ export default function AuthPage() {
       <header className="px-4 lg:px-6 h-14 flex items-center border-b border-black/15 shadow-xl">
         <Link className="flex items-center justify-center" href="/">
           <ListTodo className="h-6 w-6" />
-          <span className="sr-only">Acme Inc</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link
@@ -80,78 +135,99 @@ export default function AuthPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signup" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
               </TabsList>
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-username">Username</Label>
-                      <Input
-                        id="signup-username"
-                        placeholder="johndoe"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="john@example.com"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Password</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="*******"
-                        required
-                      />
-                    </div>
-                    {signUpError && (
-                      <p className="text-sm text-red-500">{signUpError}</p>
-                    )}
-                    <Button type="submit" className="w-full">
-                      Sign Up
-                    </Button>
-                  </div>
-                </form>
+                <Form {...signupForm}>
+                  <form
+                    onSubmit={signupForm.handleSubmit(handleSignUp)}
+                    className="space-y-8"
+                  >
+                    <FormField
+                      control={signupForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="tony43" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="tony@gmail.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input placeholder="******" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit">Submit</Button>
+                  </form>
+                </Form>
               </TabsContent>
               <TabsContent value="signin">
-                <form onSubmit={handleSignIn}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder="john@example.com"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder="*******"
-                        required
-                      />
-                    </div>
-                    {signInError && (
-                      <p className="text-sm text-red-500">{signInError}</p>
-                    )}
-                    <Button type="submit" className="w-full">
-                      Sign In
-                    </Button>
-                  </div>
-                </form>
+                <Form {...signinForm}>
+                  <form
+                    onSubmit={signinForm.handleSubmit(handleSignIn)}
+                    className="space-y-8"
+                  >
+                    <FormField
+                      control={signinForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="tony@gmail.com"
+                              type="email"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signinForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input placeholder="******" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit">Submit</Button>
+                  </form>
+                </Form>
               </TabsContent>
             </Tabs>
           </CardContent>
