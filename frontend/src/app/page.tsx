@@ -1,9 +1,21 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle, ListTodo, Share2, Zap } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LandingPage() {
+
+  
+  useEffect(() => {
+    if(localStorage.getItem("token")) {
+      redirect('/home')
+    }
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center border-b border-black/15 shadow-xl">

@@ -25,6 +25,7 @@ export default function TaskList() {
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchTasks = async () => {
     try {
@@ -37,6 +38,8 @@ export default function TaskList() {
       setFilteredTasks(res.data.tasks);
     } catch (error: any) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -133,6 +136,14 @@ export default function TaskList() {
       prevDirection === "asc" ? "desc" : "asc"
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container min-h-screen mx-auto p-4">

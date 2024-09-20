@@ -17,8 +17,8 @@ export default function Appbar() {
           <a href="/task/create" className="hover:text-blue-400">
             Create Task
           </a>
-          <a href="/tasks" className="hover:text-blue-400">
-            My Tasks
+          <a href="/board-view" className="hover:text-blue-400">
+           Board View
           </a>
           <Button
             variant={"destructive"}

@@ -12,18 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { toast } from "sonner";
+
 
 const priorityColors: Record<string, string> = {
-  High: "bg-red-100 text-red-800 hover:bg-red-200",
-  Medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  Low: "bg-green-100 text-green-800 hover:bg-green-200",
+  High: "bg-violet-100 text-violet-800 hover:bg-violet-200",
+  Medium: "bg-rose-100 text-rose-800 hover:bg-rose-200",
+  Low: "bg-sky-100 text-sky-800 hover:bg-sky-200",
 };
 
 const statusColors: Record<string, string> = {
   "To Do": "bg-blue-100 text-blue-800 hover:bg-blue-200",
-  "In Progress": "bg-purple-100 text-purple-800 hover:bg-purple-200",
-  Completed: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  "In Progress": "bg-yellow-100 text-purple-800 hover:bg-yellow-200",
+  Completed: "bg-green-100 text-gray-800 hover:bg-green-200",
 };
 
 export default function TaskCard({
