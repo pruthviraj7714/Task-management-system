@@ -129,3 +129,45 @@ taskRouter.patch("/update", authMiddleware, async (req, res) => {
     });
   }
 });
+
+
+taskRouter.patch("/update-status", authMiddleware, async (req, res) => {
+  const taskId = req.query.id as string;
+
+  if (!taskId) {
+    return res.status(411).json({
+      message: "Task Id is missing!",
+    });
+  }
+
+  const { status } = req.body;
+
+  if(!status) {
+    return res.status(411).json({
+      message : "status not given!"
+    })
+  }
+
+  try {
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(409).json({
+        message: "Task not found!",
+      });
+    }
+
+    task.status = status;
+
+    await task.save();
+
+    return res.status(200).json({
+      message: "Task status successfully updated!",
+    });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    return res.status(500).json({
+      message: "Internal Server Error!",
+    });
+  }
+});
