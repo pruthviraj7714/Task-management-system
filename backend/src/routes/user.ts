@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { User } from "../models/userModel";
 import bcrypt from "bcrypt";
-import  jwt  from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import { signInSchema, signupSchema } from "../schemas/schema";
+import { authMiddleware } from "../middleware";
 
 export const userRouter = Router();
 
@@ -80,6 +81,29 @@ userRouter.post("/signin", async (req, res) => {
     return res.status(200).json({
       message: "User Successfully Signed In",
       token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
+userRouter.get("/info", authMiddleware, async (req, res) => {
+  try {
+    //@ts-ignore
+    const userId = req.id;
+
+    const user = await User.findById(userId).select("username email");
+
+    if (!user) {
+      return res.status(403).json({
+        message: "User not found!",
+      });
+    }
+
+    return res.status(200).json({
+      user,
     });
   } catch (error) {
     return res.status(500).json({
