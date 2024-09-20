@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, ListTodo, Share2, Zap } from "lucide-react";
+import { CheckCircle, Kanban, ListTodo, Share2, Zap } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
@@ -85,17 +85,17 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 border-gray-800 p-4 rounded-lg">
-                <Share2 className="h-10 w-10 text-primary" />
-                <h3 className="text-xl font-bold">Team Collaboration</h3>
+                <Kanban className="h-10 w-10 text-primary" />
+                <h3 className="text-xl font-bold">Kanaban View</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                  Share tasks and projects with your team members effortlessly.
+                  View tasks and change status by drag and drop.
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 border-gray-800 p-4 rounded-lg">
                 <Zap className="h-10 w-10 text-primary" />
                 <h3 className="text-xl font-bold">Productivity Boost</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                  Track your progress and improve your efficiency over time.
+                  Be Productive by adding more tasks.
                 </p>
               </div>
             </div>
@@ -120,7 +120,9 @@ export default function LandingPage() {
                     placeholder="Enter your email"
                     type="email"
                   />
-                  <Button type="submit">Sign Up</Button>
+                  <Link href={'/auth'}>
+                    <Button type="submit">Sign Up</Button>
+                  </Link>
                 </form>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   By signing up, you agree to our{" "}
