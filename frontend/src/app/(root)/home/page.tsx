@@ -19,12 +19,19 @@ export interface Task {
   dueDate: string;
 }
 
+interface UserType {
+  _id: string;
+  email: string;
+  username: string;
+}
+
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [userInfo, setUserInfo] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchTasks = async () => {
@@ -40,6 +47,19 @@ export default function TaskList() {
       toast.error(error.response.data.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchUserInfo = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/user/info`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setUserInfo(res.data.user);
+    } catch (error: any) {
+      toast.error(error.response.data.message);
     }
   };
 
@@ -99,6 +119,7 @@ export default function TaskList() {
   };
 
   useEffect(() => {
+    fetchUserInfo();
     fetchTasks();
   }, []);
 
@@ -147,7 +168,16 @@ export default function TaskList() {
 
   return (
     <div className="container min-h-screen mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
+      <h1 className="text-4xl font-bold tracking-tight text-gray-800">
+        Welcome,{" "}
+        <span className="font-extrabold text-yellow-500">
+          {userInfo?.username} 👋
+        </span>
+      </h1>
+      <p className="mt-3 text-lg text-gray-600 mb-6">
+        Here are your tasks for today. Stay productive!
+      </p>
+
       <div className="flex flex-col md:flex-row gap-6">
         <Card className="w-full md:w-64 h-fit">
           <CardHeader>

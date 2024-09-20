@@ -4,31 +4,28 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-8">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="text-lg font-bold mb-3">Task Master</div>
 
-          <div className="text-lg font-bold">
-          Task Master
-          </div>
-
-          <div className="flex space-x-6">
-            <a href="/about" className="hover:text-blue-400">
+          <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 justify-center">
+            <Link href="/about" className="hover:text-blue-400">
               About
-            </a>
-            <a href="/features" className="hover:text-blue-400">
+            </Link>
+            <Link href="/features" className="hover:text-blue-400">
               Features
-            </a>
-            <a href="/support" className="hover:text-blue-400">
+            </Link>
+            <Link href="/support" className="hover:text-blue-400">
               Support
-            </a>
-            <a href="/privacy" className="hover:text-blue-400">
+            </Link>
+            <Link href="/privacy" className="hover:text-blue-400">
               Privacy Policy
-            </a>
-            <a href="/terms" className="hover:text-blue-400">
+            </Link>
+            <Link href="/terms" className="hover:text-blue-400">
               Terms of Service
-            </a>
+            </Link>
           </div>
 
-          <div className="flex space-x-4">
+          <div className="flex justify-center">
             <a
               href="https://twitter.com"
               aria-label="Twitter"
@@ -55,8 +52,7 @@ export default function Footer() {
 
         <div className="text-center text-sm mt-6">
           <p>
-            &copy; {new Date().getFullYear()} Task Master. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} Task Master. All rights reserved.
           </p>
         </div>
       </div>

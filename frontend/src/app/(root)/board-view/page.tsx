@@ -80,13 +80,13 @@ export default function KanbanBoard() {
   }
 
   return (
-    <div className="flex space-x-6 p-6 min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row md:space-x-6 p-6 min-h-screen bg-gray-100">
       <div
-        className="bg-gradient-to-b from-red-300 to-red-500 p-4 w-1/3 rounded-lg shadow-lg"
+        className="bg-gradient-to-b from-red-300 to-red-500 p-4 mb-6 md:mb-0 md:w-1/3 rounded-lg shadow-lg"
         onDrop={(ev) => drop(ev, "To Do")}
         onDragOver={allowDrop}
       >
-        <h2 className="font-bold  text-lg mb-4">To Do</h2>
+        <h2 className="font-bold text-lg mb-4">To Do</h2>
         {filteredTasks("To Do").map((task) => (
           <div
             key={task._id}
@@ -101,11 +101,11 @@ export default function KanbanBoard() {
       </div>
 
       <div
-        className="bg-gradient-to-b from-yellow-300 to-yellow-500 p-4 w-1/3 rounded-lg shadow-lg"
+        className="bg-gradient-to-b from-yellow-300 to-yellow-500 p-4 mb-6 md:mb-0 md:w-1/3 rounded-lg shadow-lg"
         onDrop={(ev) => drop(ev, "In Progress")}
         onDragOver={allowDrop}
       >
-        <h2 className="font-bold  text-lg mb-4">In Progress</h2>
+        <h2 className="font-bold text-lg mb-4">In Progress</h2>
         {filteredTasks("In Progress").map((task) => (
           <div
             key={task._id}
@@ -120,11 +120,11 @@ export default function KanbanBoard() {
       </div>
 
       <div
-        className="bg-gradient-to-b from-green-300 to-green-500 p-4 w-1/3 rounded-lg shadow-lg"
+        className="bg-gradient-to-b from-green-300 to-green-500 p-4 md:w-1/3 rounded-lg shadow-lg"
         onDrop={(ev) => drop(ev, "Completed")}
         onDragOver={allowDrop}
       >
-        <h2 className="font-bold  text-lg mb-4">Completed</h2>
+        <h2 className="font-bold text-lg mb-4">Completed</h2>
         {filteredTasks("Completed").map((task) => (
           <div
             key={task._id}

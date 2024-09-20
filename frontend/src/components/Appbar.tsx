@@ -13,7 +13,7 @@ export default function Appbar() {
           Task Master
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="flex items-center space-x-6">
           <a href="/task/create" className="hover:text-blue-400">
             Create Task
           </a>
