@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { response, Router } from "express";
 import { authMiddleware } from "../middleware";
 import { Task } from "../models/TaskModel";
 import { taskSchema } from "../schemas/schema";
@@ -37,7 +37,7 @@ taskRouter.post("/create", authMiddleware, async (req, res) => {
 
     return res.status(201).json({
       message: "Task Successfully Created!",
-      task
+      task,
     });
   } catch (error) {
     console.log(error);
@@ -57,7 +57,7 @@ taskRouter.get("/all", authMiddleware, async (req, res) => {
     });
 
     return res.status(200).json({
-      tasks
+      tasks,
     });
   } catch (error) {
     return res.status(500).json({
@@ -66,33 +66,66 @@ taskRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-taskRouter.delete('/delete', authMiddleware, async (req, res) => {
-  //@ts-ignore
-  const userId = req.isPaused
-
+taskRouter.delete("/delete", authMiddleware, async (req, res) => {
   const taskId = req.query.id;
 
-  if(!taskId) {
+  if (!taskId) {
     return res.status(411).json({
-      message : "Task Id is missing!"
-    })
+      message: "Task Id is missing!",
+    });
   }
 
   try {
     await Task.deleteOne({
-      _id : taskId
-    })
+      _id: taskId,
+    });
 
     return res.status(200).json({
-      message : "Task Successfully deleted!"
-    })
-    
+      message: "Task Successfully deleted!",
+    });
   } catch (error) {
     return res.status(500).json({
-      message : "Internal Server Error"
-    })
+      message: "Internal Server Error",
+    });
   }
-})
+});
 
+taskRouter.patch("/update", authMiddleware, async (req, res) => {
+  const taskId = req.query.id as string;
 
+  if (!taskId) {
+    return res.status(411).json({
+      message: "Task Id is missing!",
+    });
+  }
 
+  try {
+    const body = req.body;
+
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(409).json({
+        message: "Task not found!",
+      });
+    }
+
+    task.title = body.title ?? task.title;
+    task.description = body.description ?? task.description;
+    task.priority = body.priority ?? task.priority;
+    task.status = body.status ?? task.status;
+    task.dueDate = body.dueDate ?? task.dueDate;
+
+    await task.save();
+
+    return res.status(200).json({
+      message: "Task successfully updated!",
+      task,
+    });
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return res.status(500).json({
+      message: "Internal Server Error!",
+    });
+  }
+});
