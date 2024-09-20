@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { ListTodo } from "lucide-react";
 
-export const taskSchema = z.object({
+const taskSchema = z.object({
   title: z.string().min(3, "Title must be at least of 3 characters"),
   description: z
     .string()
@@ -42,7 +42,7 @@ export const taskSchema = z.object({
   dueDate: z.string().optional(),
 });
 
-export default function CreateTask() {
+export default function CreateTaskPage() {
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, Kanban, ListTodo, Share2, Zap } from "lucide-react";
+import { CheckCircle, Kanban, ListTodo, Zap } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
