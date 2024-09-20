@@ -3,15 +3,14 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
+import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { BACKEND_URL } from "@/config/config";
 import { Button } from "@/components/ui/button";
+import TaskCard from "@/components/TaskCard";
 
-interface Task {
+export interface Task {
   _id: string;
   title: string;
   description: string;
@@ -20,33 +19,12 @@ interface Task {
   dueDate: string;
 }
 
-const priorityColors = {
-  High: "bg-red-100 text-red-800 hover:bg-red-200",
-  Medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  Low: "bg-green-100 text-green-800 hover:bg-green-200",
-};
-
-const statusColors = {
-  "To Do": "bg-blue-100 text-blue-800 hover:bg-blue-200",
-  "In Progress": "bg-purple-100 text-purple-800 hover:bg-purple-200",
-  Completed: "bg-gray-100 text-gray-800 hover:bg-gray-200",
-};
-
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [priorityFilter, setPriorityFilter] = useState<Record<string, boolean>>(
-    {
-      High: false,
-      Medium: false,
-      Low: false,
-    }
-  );
-  const [statusFilter, setStatusFilter] = useState<Record<string, boolean>>({
-    "To Do": false,
-    "In Progress": false,
-    Completed: false,
-  });
+  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const fetchTasks = async () => {
     try {
@@ -62,20 +40,60 @@ export default function TaskList() {
     }
   };
 
-  const deleteTask = async (id : string) => {
+  const sortTasksByDueDate = (tasksToSort: Task[]) => {
+    return tasksToSort.sort((a, b) => {
+      const dateA = new Date(a.dueDate);
+      const dateB = new Date(b.dueDate);
+
+      if (sortDirection === "asc") {
+        return dateA.getTime() - dateB.getTime();
+      } else {
+        return dateB.getTime() - dateA.getTime();
+      }
+    });
+  };
+
+  const deleteTask = async (id: string) => {
     try {
       await axios.delete(`${BACKEND_URL}/task/delete?id=${id}`, {
-        headers : {
-          Authorization : `Bearer ${localStorage.getItem("token")}`
-        }
-      })
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       toast.success("Task Successfully removed!");
       setTasks(tasks.filter((task) => task._id !== id));
       setFilteredTasks(tasks.filter((task) => task._id !== id));
     } catch (error: any) {
       toast.error(error.response.data.message);
     }
-  }
+  };
+
+  const handleTaskUpdate = async (
+    taskId: string,
+    updatedFields: Partial<Task>
+  ) => {
+    try {
+      const res = await axios.patch(
+        `${BACKEND_URL}/task/update?id=${taskId}`,
+        updatedFields,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      toast.success("Task Successfully updated!");
+      setTasks((prev) =>
+        prev.map((t) => (t._id === taskId ? { ...t, ...updatedFields } : t))
+      );
+      setFilteredTasks((prev) =>
+        prev.map((t) => (t._id === taskId ? { ...t, ...updatedFields } : t))
+      );
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -84,22 +102,36 @@ export default function TaskList() {
   useEffect(() => {
     const filtered = tasks.filter((task) => {
       const priorityMatch =
-        Object.values(priorityFilter).every((v) => v === false) ||
-        priorityFilter[task.priority];
+        priorityFilter.length === 0 || priorityFilter.includes(task.priority);
       const statusMatch =
-        Object.values(statusFilter).every((v) => v === false) ||
-        statusFilter[task.status];
+        statusFilter.length === 0 || statusFilter.includes(task.status);
+
       return priorityMatch && statusMatch;
     });
-    setFilteredTasks(filtered);
-  }, [tasks, priorityFilter, statusFilter]);
+
+    setFilteredTasks(sortTasksByDueDate(filtered));
+  }, [tasks, priorityFilter, statusFilter, sortDirection]);
 
   const handlePriorityFilterChange = (priority: string) => {
-    setPriorityFilter((prev) => ({ ...prev, [priority]: !prev[priority] }));
+    setPriorityFilter((prev) =>
+      prev.includes(priority)
+        ? prev.filter((p) => p !== priority)
+        : [...prev, priority]
+    );
   };
 
   const handleStatusFilterChange = (status: string) => {
-    setStatusFilter((prev) => ({ ...prev, [status]: !prev[status] }));
+    setStatusFilter((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    );
+  };
+
+  const toggleSortDirection = () => {
+    setSortDirection((prevDirection) =>
+      prevDirection === "asc" ? "desc" : "asc"
+    );
   };
 
   return (
@@ -114,11 +146,11 @@ export default function TaskList() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Priority</h3>
-                {Object.keys(priorityFilter).map((priority) => (
+                {["High", "Medium", "Low"].map((priority) => (
                   <div key={priority} className="flex items-center space-x-2">
                     <Checkbox
                       id={`priority-${priority}`}
-                      checked={priorityFilter[priority]}
+                      checked={priorityFilter.includes(priority)}
                       onCheckedChange={() =>
                         handlePriorityFilterChange(priority)
                       }
@@ -129,11 +161,11 @@ export default function TaskList() {
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Status</h3>
-                {Object.keys(statusFilter).map((status) => (
+                {["To Do", "In Progress", "Completed"].map((status) => (
                   <div key={status} className="flex items-center space-x-2">
                     <Checkbox
                       id={`status-${status}`}
-                      checked={statusFilter[status]}
+                      checked={statusFilter.includes(status)}
                       onCheckedChange={() => handleStatusFilterChange(status)}
                     />
                     <Label htmlFor={`status-${status}`}>{status}</Label>
@@ -141,44 +173,26 @@ export default function TaskList() {
                 ))}
               </div>
             </div>
+            <div>
+              <h3 className="font-semibold mb-2">Sort By</h3>
+              <Button onClick={toggleSortDirection}>
+                Due Date ({sortDirection === "asc" ? "Ascending" : "Descending"}
+                )
+              </Button>
+            </div>
           </CardContent>
         </Card>
         <div className="flex-1 space-y-4">
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
-              <Card key={task._id} className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <CardTitle>{task.title}</CardTitle>
-                    <div className="flex space-x-2">
-                      <Badge className={priorityColors[task.priority]}>
-                        {task.priority}
-                      </Badge>
-                      <Badge className={statusColors[task.status]}>
-                        {task.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {task.description}
-                  </p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      <span>
-                        Due: {task.dueDate}
-                      </span>
-                    </div>
-                    <div>
-                      <Button onClick={() => deleteTask(task._id)} variant={"destructive"}>
-                        Delete Task
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <TaskCard
+                key={task._id}
+                task={task}
+                onUpdate={(updatedFields) =>
+                  handleTaskUpdate(task._id, updatedFields)
+                }
+                onDelete={() => deleteTask(task._id)}
+              />
             ))
           ) : (
             <Card>
