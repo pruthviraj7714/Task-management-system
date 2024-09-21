@@ -49,6 +49,7 @@ const signinSchema = z.object({
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("signup");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   
   const signupForm = useForm<z.infer<typeof signupSchema>>({
@@ -69,6 +70,7 @@ export default function AuthPage() {
   });
 
   const handleSignUp = async (values: z.infer<typeof signupSchema>) => {
+    setIsLoading(true);
     try {
         const res = await axios.post(`${BACKEND_URL}/user/signup`, values);
         toast.success(res.data.message, {description : "Now sign in with your credentials"});
@@ -76,10 +78,13 @@ export default function AuthPage() {
         signupForm.reset();
     } catch (error : any) {
         toast.error(error?.response?.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
+    setIsLoading(true);
     try {
         const res = await axios.post(`${BACKEND_URL}/user/signin`, values);
         toast.success(res.data.message);
@@ -87,6 +92,8 @@ export default function AuthPage() {
         router.push('/home')
     } catch (error : any) {
         toast.error(error.response.data.message)
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -185,7 +192,7 @@ export default function AuthPage() {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isLoading} >{isLoading ? "Loading..." : "Submit"}</Button>
                   </form>
                 </Form>
               </TabsContent>
@@ -225,7 +232,7 @@ export default function AuthPage() {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isLoading}>{isLoading ? "Loading..." : "Submit"}</Button>
                   </form>
                 </Form>
               </TabsContent>
